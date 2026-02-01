@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カレンダー日記</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <h1 class="header-title">カレンダー日記</h1>
+            <div class="header-actions">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="検索..." aria-label="日記を検索">
+                    <button id="search-btn" class="btn btn-icon" aria-label="検索">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
+                </div>
+                <button id="settings-btn" class="btn btn-icon" aria-label="設定">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- カレンダーセクション -->
+            <section class="calendar-section">
+                <div class="calendar-header">
+                    <button id="prev-month" class="btn btn-icon" aria-label="前月">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 id="current-month" class="calendar-title">2026年1月</h2>
+                    <button id="next-month" class="btn btn-icon" aria-label="次月">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                    <button id="today-btn" class="btn btn-secondary">今日</button>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-weekdays">
+                        <span class="weekday sunday">日</span>
+                        <span class="weekday">月</span>
+                        <span class="weekday">火</span>
+                        <span class="weekday">水</span>
+                        <span class="weekday">木</span>
+                        <span class="weekday">金</span>
+                        <span class="weekday saturday">土</span>
+                    </div>
+                    <div id="calendar-days" class="calendar-days">
+                        <!-- 日付セルはJSで生成 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 日記プレビューセクション -->
+            <section class="preview-section">
+                <div id="preview-content" class="preview-content">
+                    <p class="preview-placeholder">日付を選択して日記を表示</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 日記編集モーダル -->
+    <div id="diary-modal" class="modal" aria-hidden="true">
+        <div class="modal-overlay" data-close-modal></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title" class="modal-title">日記を編集</h2>
+                <button class="btn btn-icon modal-close" data-close-modal aria-label="閉じる">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="diary-id">
+                <input type="hidden" id="diary-date">
+
+                <div class="form-group">
+                    <label for="diary-title">タイトル</label>
+                    <input type="text" id="diary-title" class="form-input" placeholder="今日のタイトル">
+                </div>
+
+                <div class="form-group">
+                    <label for="diary-content">内容</label>
+                    <textarea id="diary-content" class="form-textarea" placeholder="今日あったこと..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>タグ</label>
+                    <div id="tag-selector" class="tag-selector">
+                        <!-- タグ選択UIはJSで生成 -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>画像</label>
+                    <div id="image-upload" class="image-upload">
+                        <input type="file" id="image-input" accept="image/*" multiple hidden>
+                        <div class="image-upload-buttons">
+                            <button type="button" id="image-upload-btn" class="btn btn-secondary">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                                画像を追加
+                            </button>
+                            <button type="button" id="random-dog-btn" class="btn btn-secondary">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10 5.172C10 3.782 8.423 2.679 6.5 3c-2.823.47-4.113 6.006-4 7 .08.703 1.725 1.722 3.656 1 1.261-.472 1.96-1.45 2.344-2.5M14 5.172C14 3.782 15.577 2.679 17.5 3c2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.96-1.45-2.344-2.5"></path>
+                                    <path d="M8 14v.5M16 14v.5M11.25 16.25h1.5L12 17l-.75-.75z"></path>
+                                    <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444c0-1.061-.162-2.2-.493-3.309m-9.243-6.082A8.801 8.801 0 0 1 12 5c.78 0 1.5.108 2.161.306"></path>
+                                </svg>
+                                犬の画像
+                            </button>
+                        </div>
+                        <div class="dog-breed-selector">
+                            <select id="dog-breed-select" class="form-input">
+                                <option value="">犬種を選択（ランダム）</option>
+                            </select>
+                        </div>
+                        <div id="image-preview" class="image-preview">
+                            <!-- 画像プレビューはJSで生成 -->
+                        </div>
+                    </div>
+                    <p id="storage-warning" class="storage-warning" hidden>
+                        ストレージ容量が少なくなっています
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="diary-delete" class="btn btn-danger" hidden>削除</button>
+                <div class="modal-footer-right">
+                    <button class="btn btn-secondary" data-close-modal>キャンセル</button>
+                    <button id="diary-save" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 設定モーダル -->
+    <div id="settings-modal" class="modal" aria-hidden="true">
+        <div class="modal-overlay" data-close-modal></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">設定</h2>
+                <button class="btn btn-icon modal-close" data-close-modal aria-label="閉じる">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- タグ管理 -->
+                <section class="settings-section">
+                    <h3>タグ管理</h3>
+                    <div id="tag-list" class="tag-list">
+                        <!-- タグ一覧はJSで生成 -->
+                    </div>
+                    <div class="tag-create">
+                        <input type="text" id="new-tag-name" class="form-input" placeholder="新しいタグ名">
+                        <input type="color" id="new-tag-color" class="form-color" value="#4a90d9">
+                        <button id="create-tag-btn" class="btn btn-primary">追加</button>
+                    </div>
+                </section>
+
+                <!-- データ管理 -->
+                <section class="settings-section">
+                    <h3>データ管理</h3>
+                    <div class="settings-actions">
+                        <button id="export-btn" class="btn btn-secondary">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            エクスポート
+                        </button>
+                        <button id="import-btn" class="btn btn-secondary">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            インポート
+                        </button>
+                        <input type="file" id="import-input" accept=".json" hidden>
+                    </div>
+                    <button id="clear-all-btn" class="btn btn-danger">
+                        全データを削除
+                    </button>
+                </section>
+
+                <!-- ストレージ情報 -->
+                <section class="settings-section">
+                    <h3>ストレージ使用量</h3>
+                    <div class="storage-info">
+                        <div class="storage-bar">
+                            <div id="storage-used" class="storage-used" style="width: 0%"></div>
+                        </div>
+                        <p id="storage-text" class="storage-text">0 KB / 5 MB</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- 検索結果モーダル -->
+    <div id="search-modal" class="modal" aria-hidden="true">
+        <div class="modal-overlay" data-close-modal></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 class="modal-title">検索結果</h2>
+                <button class="btn btn-icon modal-close" data-close-modal aria-label="閉じる">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="search-filters">
+                    <div class="form-group">
+                        <label for="filter-tags">タグでフィルタ</label>
+                        <div id="filter-tags" class="filter-tags">
+                            <!-- タグフィルタはJSで生成 -->
+                        </div>
+                    </div>
+                    <div class="form-group form-row">
+                        <div>
+                            <label for="filter-from">開始日</label>
+                            <input type="date" id="filter-from" class="form-input">
+                        </div>
+                        <div>
+                            <label for="filter-to">終了日</label>
+                            <input type="date" id="filter-to" class="form-input">
+                        </div>
+                    </div>
+                </div>
+                <div id="search-results" class="search-results">
+                    <!-- 検索結果はJSで生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 確認ダイアログ -->
+    <div id="confirm-dialog" class="modal" aria-hidden="true">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2 id="confirm-title" class="modal-title">確認</h2>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">この操作を実行しますか？</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-cancel" class="btn btn-secondary">キャンセル</button>
+                <button id="confirm-ok" class="btn btn-danger">実行</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/storage.js"></script>
+    <script src="js/tags.js"></script>
+    <script src="js/diary.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
